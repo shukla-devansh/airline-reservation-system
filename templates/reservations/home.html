@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block title %}SkyWave Airlines — Book Your Next Flight{% endblock %}
+{% block content %}
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-tagline">✈ The sky is not the limit</div>
+    <h1>Fly to your<br><span class="accent">next destination</span></h1>
+    <p class="hero-sub">Search hundreds of routes, compare fares, and book in minutes.</p>
+
+    <div class="search-card">
+      <form method="get" action="{% url 'search_flights' %}">
+        {% csrf_token %}
+        <div class="trip-toggle">
+          {% for radio in form.trip_type %}
+            <label>{{ radio.tag }} {{ radio.choice_label }}</label>
+          {% endfor %}
+        </div>
+        <div class="search-grid">
+          <div class="form-group">
+            <label>From</label>
+            <input type="text" name="origin" class="form-control" placeholder="City or code (e.g. DEL)" value="{{ form.origin.value|default:'' }}" list="airports-list" required>
+          </div>
+          <div class="form-group">
+            <label>To</label>
+            <input type="text" name="destination" class="form-control" placeholder="City or code (e.g. BOM)" value="{{ form.destination.value|default:'' }}" list="airports-list" required>
+          </div>
+          <div class="form-group">
+            <label>Departure</label>
+            <input type="date" name="departure_date" class="form-control" value="{{ form.departure_date.value|default:'' }}" required>
+          </div>
+          <div class="form-group">
+            <label>Class &amp; Passengers</label>
+            <div style="display:flex;gap:8px;">
+              <select name="passengers" class="form-control" style="width:80px;">
+                {% for i in "123456789" %}<option value="{{ i }}">{{ i }} pax</option>{% endfor %}
+              </select>
+              <select name="seat_class" class="form-control">
+                <option value="economy">Economy</option>
+                <option value="business">Business</option>
+                <option value="first">First</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg">
+            🔍 Search
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <datalist id="airports-list">
+      {% for airport in airports %}
+        <option value="{{ airport.code }}">{{ airport.city }} ({{ airport.code }})</option>
+      {% endfor %}
+    </datalist>
+  </div>
+</section>
+
+<div class="main-content">
+  {% if upcoming_flights %}
+  <div class="section-header">
+    <h2 class="section-title">Featured Flights</h2>
+    <span class="section-meta">{{ upcoming_flights|length }} available</span>
+  </div>
+  <div class="flight-list">
+    {% for flight in upcoming_flights %}
+    <div class="flight-card">
+      <div>
+        <div class="flight-time">{{ flight.departure_time|time:"H:i" }}</div>
+        <div class="flight-code">{{ flight.origin.code }}</div>
+        <div class="flight-city">{{ flight.origin.city }}</div>
+      </div>
+      <div class="flight-middle">
+        <div class="flight-duration">{{ flight.duration }}</div>
+        <div class="flight-line">
+          <div class="flight-line-dot"></div>
+          <div class="flight-line-bar"></div>
+          <div class="flight-line-plane">✈</div>
+          <div class="flight-line-bar"></div>
+          <div class="flight-line-dot"></div>
+        </div>
+        <div style="font-size:0.75rem;color:var(--gray-400);text-align:center;margin-top:4px;">Non-stop</div>
+      </div>
+      <div>
+        <div class="flight-time">{{ flight.arrival_time|time:"H:i" }}</div>
+        <div class="flight-code">{{ flight.destination.code }}</div>
+        <div class="flight-city">{{ flight.destination.city }}</div>
+      </div>
+      <div class="flight-pricing">
+        <div class="price-from">From</div>
+        <div class="price-amount">₹{{ flight.economy_price|floatformat:0 }}</div>
+        <div class="price-class">Economy</div>
+        <div class="price-actions">
+          <a href="{% url 'book_flight' flight.id %}?seat_class=economy&passengers=1" class="btn btn-primary btn-sm">Book Now</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-top:3rem;">
+    <div style="background:var(--white);border-radius:var(--radius);padding:2rem;border:1.5px solid var(--gray-100);">
+      <div style="font-size:2rem;margin-bottom:1rem;">🛡️</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--navy);margin-bottom:0.5rem;">Secure Booking</div>
+      <div style="font-size:0.88rem;color:var(--gray-400);">Your payment and data are protected with industry-standard encryption.</div>
+    </div>
+    <div style="background:var(--white);border-radius:var(--radius);padding:2rem;border:1.5px solid var(--gray-100);">
+      <div style="font-size:2rem;margin-bottom:1rem;">⚡</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--navy);margin-bottom:0.5rem;">Instant Confirmation</div>
+      <div style="font-size:0.88rem;color:var(--gray-400);">Get your booking reference and e-ticket instantly via email.</div>
+    </div>
+    <div style="background:var(--white);border-radius:var(--radius);padding:2rem;border:1.5px solid var(--gray-100);">
+      <div style="font-size:2rem;margin-bottom:1rem;">🔄</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--navy);margin-bottom:0.5rem;">Easy Changes</div>
+      <div style="font-size:0.88rem;color:var(--gray-400);">Manage, modify, or cancel your bookings anytime from your account.</div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

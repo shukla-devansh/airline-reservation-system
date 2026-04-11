@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Booking Confirmed — {{ booking.booking_ref }}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <h1>Booking Confirmed</h1>
+    <p>Your reservation is all set. Have a great flight!</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="card" style="max-width:800px;margin:0 auto;">
+    <div class="confirmation-hero">
+      <div class="confirm-icon">✅</div>
+      <p style="color:var(--gray-400);font-size:0.9rem;text-transform:uppercase;letter-spacing:0.1em;font-weight:600;">Booking Reference</p>
+      <div class="booking-ref-display">{{ booking.booking_ref }}</div>
+      <p style="color:var(--gray-400);font-size:0.88rem;margin-top:0.5rem;">Confirmation sent to <strong style="color:var(--navy);">{{ booking.contact_email }}</strong></p>
+    </div>
+
+    <div class="confirm-detail-grid">
+      <div class="confirm-detail-item">
+        <div class="detail-label">Route</div>
+        <div class="detail-value">{{ booking.flight.origin.code }} → {{ booking.flight.destination.code }}</div>
+      </div>
+      <div class="confirm-detail-item">
+        <div class="detail-label">Date</div>
+        <div class="detail-value">{{ booking.flight.departure_time|date:"d M Y" }}</div>
+      </div>
+      <div class="confirm-detail-item">
+        <div class="detail-label">Departure</div>
+        <div class="detail-value">{{ booking.flight.departure_time|time:"H:i" }}</div>
+      </div>
+      <div class="confirm-detail-item">
+        <div class="detail-label">Arrival</div>
+        <div class="detail-value">{{ booking.flight.arrival_time|time:"H:i" }}</div>
+      </div>
+      <div class="confirm-detail-item">
+        <div class="detail-label">Flight</div>
+        <div class="detail-value">{{ booking.flight.flight_number }}</div>
+      </div>
+      <div class="confirm-detail-item">
+        <div class="detail-label">Class</div>
+        <div class="detail-value">{{ booking.seat_class|title }}</div>
+      </div>
+      <div class="confirm-detail-item">
+        <div class="detail-label">Passengers</div>
+        <div class="detail-value">{{ booking.passengers }}</div>
+      </div>
+      <div class="confirm-detail-item">
+        <div class="detail-label">Total Paid</div>
+        <div class="detail-value" style="color:var(--sky);font-size:1rem;">₹{{ booking.total_price|floatformat:0 }}</div>
+      </div>
+    </div>
+
+    {% if booking.passenger_list.all %}
+    <div style="padding:1.5rem;border-top:1.5px solid var(--gray-100);">
+      <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--navy);margin-bottom:1rem;font-size:1rem;">Passenger List</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;">
+        {% for p in booking.passenger_list.all %}
+        <div style="background:var(--off-white);border-radius:var(--radius-sm);padding:0.9rem;border:1.5px solid var(--gray-100);">
+          <div style="font-weight:600;color:var(--navy);">{{ p.first_name }} {{ p.last_name }}</div>
+          <div style="font-size:0.8rem;color:var(--gray-400);margin-top:2px;">DOB: {{ p.date_of_birth|date:"d M Y" }}</div>
+          {% if p.passport_number %}<div style="font-size:0.8rem;color:var(--gray-400);">Passport: {{ p.passport_number }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div style="padding:1.5rem;border-top:1.5px solid var(--gray-100);display:flex;gap:1rem;justify-content:center;">
+      <a href="{% url 'my_bookings' %}" class="btn btn-primary">View All Bookings</a>
+      <a href="{% url 'home' %}" class="btn btn-outline">Book Another Flight</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

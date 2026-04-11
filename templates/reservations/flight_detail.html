@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% block title %}Flight {{ flight.flight_number }} — SkyWave{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb">
+      <a href="{% url 'home' %}">Home</a>
+      <span class="sep">›</span>
+      <span class="current">Flight Details</span>
+    </div>
+    <h1>Flight {{ flight.flight_number }}</h1>
+    <p>{{ flight.origin.city }} → {{ flight.destination.city }} &nbsp;·&nbsp; {{ flight.departure_time|date:"D, d M Y" }}</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div style="display:grid;grid-template-columns:1fr 360px;gap:2rem;">
+
+    <div>
+      <!-- Route Card -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <div class="card-header-icon">✈</div>
+          <div class="card-title">Route Information</div>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:2rem;align-items:center;padding:1rem 0;">
+            <div>
+              <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--navy);letter-spacing:-0.04em;line-height:1;">{{ flight.departure_time|time:"H:i" }}</div>
+              <div style="font-size:1.1rem;font-weight:700;color:var(--sky);margin-top:4px;">{{ flight.origin.code }}</div>
+              <div style="font-size:0.9rem;color:var(--gray-600);">{{ flight.origin.name }}</div>
+              <div style="font-size:0.85rem;color:var(--gray-400);">{{ flight.origin.city }}, {{ flight.origin.country }}</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:0.8rem;font-weight:600;color:var(--gray-400);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:12px;">{{ flight.duration }}</div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--sky);"></div>
+                <div style="flex:1;height:2px;background:var(--gray-200);"></div>
+                <div style="font-size:18px;color:var(--sky);">✈</div>
+                <div style="flex:1;height:2px;background:var(--gray-200);"></div>
+                <div style="width:8px;height:8px;border-radius:50%;background:var(--sky);"></div>
+              </div>
+              <div style="font-size:0.75rem;color:var(--gray-400);margin-top:8px;">Non-stop</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--navy);letter-spacing:-0.04em;line-height:1;">{{ flight.arrival_time|time:"H:i" }}</div>
+              <div style="font-size:1.1rem;font-weight:700;color:var(--sky);margin-top:4px;">{{ flight.destination.code }}</div>
+              <div style="font-size:0.9rem;color:var(--gray-600);">{{ flight.destination.name }}</div>
+              <div style="font-size:0.85rem;color:var(--gray-400);">{{ flight.destination.city }}, {{ flight.destination.country }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flight Info -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <div class="card-header-icon">ℹ️</div>
+          <div class="card-title">Flight Information</div>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+            <div class="confirm-detail-item">
+              <div class="detail-label">Airline</div>
+              <div class="detail-value">{{ flight.airline_name }}</div>
+            </div>
+            <div class="confirm-detail-item">
+              <div class="detail-label">Flight No.</div>
+              <div class="detail-value">{{ flight.flight_number }}</div>
+            </div>
+            <div class="confirm-detail-item">
+              <div class="detail-label">Status</div>
+              <div class="detail-value">
+                {% if flight.status == 'scheduled' %}<span class="badge badge-success">On Time</span>
+                {% elif flight.status == 'delayed' %}<span class="badge badge-warning">Delayed</span>
+                {% elif flight.status == 'cancelled' %}<span class="badge badge-danger">Cancelled</span>
+                {% else %}<span class="badge badge-info">{{ flight.status|title }}</span>{% endif %}
+              </div>
+            </div>
+            <div class="confirm-detail-item">
+              <div class="detail-label">Total Seats</div>
+              <div class="detail-value">{{ flight.total_seats }}</div>
+            </div>
+            <div class="confirm-detail-item">
+              <div class="detail-label">Available</div>
+              <div class="detail-value">{{ flight.available_seats }}</div>
+            </div>
+            <div class="confirm-detail-item">
+              <div class="detail-label">Duration</div>
+              <div class="detail-value">{{ flight.duration }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fare Table -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon">💰</div>
+          <div class="card-title">Available Fares</div>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+            {% for cls, price, desc in fare_classes %}
+            <div style="border:1.5px solid var(--gray-100);border-radius:var(--radius-sm);padding:1.2rem;text-align:center;{% if seat_class == cls %}border-color:var(--sky);background:rgba(30,144,200,0.04);{% endif %}">
+              <div style="font-size:1.5rem;margin-bottom:0.5rem;">{{ desc }}</div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;color:var(--navy);font-size:0.95rem;">{{ cls|title }}</div>
+              <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--sky);margin:0.5rem 0;letter-spacing:-0.02em;">₹{{ price|floatformat:0 }}</div>
+              <a href="{% url 'book_flight' flight.id %}?seat_class={{ cls }}&passengers={{ passengers }}" class="btn {% if seat_class == cls %}btn-amber{% else %}btn-outline{% endif %} btn-sm btn-full">Select</a>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+      <div class="card" style="position:sticky;top:80px;">
+        <div class="card-header">
+          <div class="card-header-icon">🛒</div>
+          <div class="card-title">Quick Book</div>
+        </div>
+        <div class="card-body">
+          <div class="summary-flight" style="margin-bottom:1.2rem;">
+            <div class="summary-route">
+              <span>{{ flight.origin.code }}</span>
+              <span class="arrow">✈</span>
+              <span>{{ flight.destination.code }}</span>
+            </div>
+            <div class="summary-detail">{{ flight.departure_time|date:"D, d M Y" }}</div>
+            <div class="summary-detail">{{ flight.departure_time|time:"H:i" }} → {{ flight.arrival_time|time:"H:i" }}</div>
+          </div>
+          <div class="form-group" style="margin-bottom:1rem;">
+            <label>Class</label>
+            <select class="form-control" id="classSelect">
+              <option value="economy" {% if seat_class == 'economy' %}selected{% endif %}>Economy — ₹{{ flight.economy_price|floatformat:0 }}</option>
+              <option value="business" {% if seat_class == 'business' %}selected{% endif %}>Business — ₹{{ flight.business_price|floatformat:0 }}</option>
+              <option value="first" {% if seat_class == 'first' %}selected{% endif %}>First Class — ₹{{ flight.first_class_price|floatformat:0 }}</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:1.2rem;">
+            <label>Passengers</label>
+            <select class="form-control" id="paxSelect">
+              {% for i in "12345678" %}<option value="{{ i }}" {% if passengers == i %}selected{% endif %}>{{ i }} passenger{{ i|pluralize }}</option>{% endfor %}
+            </select>
+          </div>
+          <button class="btn btn-amber btn-lg btn-full" id="bookBtn">Book Now →</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}
+{% block extra_scripts %}
+<script>
+  const flightId = {{ flight.id }};
+  document.getElementById('bookBtn').addEventListener('click', function() {
+    const cls = document.getElementById('classSelect').value;
+    const pax = document.getElementById('paxSelect').value;
+    window.location.href = `/book/${flightId}/?seat_class=${cls}&passengers=${pax}`;
+  });
+</script>
+{% endblock %}

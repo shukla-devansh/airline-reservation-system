@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Flights: {{ origin }} → {{ destination }} — SkyWave{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb">
+      <a href="{% url 'home' %}">Home</a>
+      <span class="sep">›</span>
+      <span class="current">Search Results</span>
+    </div>
+    <h1>{{ origin }} → {{ destination }}</h1>
+    <p>{{ dep_date|date:"D, d M Y" }} &nbsp;·&nbsp; {{ passengers }} passenger{{ passengers|pluralize }} &nbsp;·&nbsp; {{ seat_class|title }}</p>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="section-header">
+    <h2 class="section-title">
+      {% if flights %}
+        {{ flights|length }} flight{{ flights|length|pluralize }} found
+      {% else %}
+        No flights found
+      {% endif %}
+    </h2>
+    <a href="{% url 'home' %}" class="btn btn-outline btn-sm">← Modify Search</a>
+  </div>
+
+  {% if flights %}
+  <div class="flight-list">
+    {% for flight in flights %}
+    <div class="flight-card">
+      <div>
+        <div class="flight-time">{{ flight.departure_time|time:"H:i" }}</div>
+        <div class="flight-code">{{ flight.origin.code }}</div>
+        <div class="flight-city">{{ flight.origin.city }}, {{ flight.origin.country }}</div>
+      </div>
+      <div class="flight-middle">
+        <div class="flight-duration">{{ flight.duration }}</div>
+        <div class="flight-line">
+          <div class="flight-line-dot"></div>
+          <div class="flight-line-bar"></div>
+          <div class="flight-line-plane">✈</div>
+          <div class="flight-line-bar"></div>
+          <div class="flight-line-dot"></div>
+        </div>
+        <div style="font-size:0.75rem;color:var(--gray-400);text-align:center;margin-top:4px;">Non-stop</div>
+      </div>
+      <div>
+        <div class="flight-time">{{ flight.arrival_time|time:"H:i" }}</div>
+        <div class="flight-code">{{ flight.destination.code }}</div>
+        <div class="flight-city">{{ flight.destination.city }}, {{ flight.destination.country }}</div>
+      </div>
+      <div class="flight-pricing">
+        <div class="flight-number">{{ flight.flight_number }}</div>
+        <div class="flight-airline">{{ flight.airline_name }}</div>
+        <div class="flight-status" style="margin-top:6px;">
+          {% if flight.status == 'scheduled' %}
+            <span class="badge badge-success">On Time</span>
+          {% elif flight.status == 'delayed' %}
+            <span class="badge badge-warning">Delayed</span>
+          {% else %}
+            <span class="badge badge-danger">{{ flight.status|title }}</span>
+          {% endif %}
+        </div>
+        <div style="margin-top:12px;">
+          <div class="price-from">{{ seat_class|title }}</div>
+          <div class="price-amount">
+            ₹{% if seat_class == 'business' %}{{ flight.business_price|floatformat:0 }}{% elif seat_class == 'first' %}{{ flight.first_class_price|floatformat:0 }}{% else %}{{ flight.economy_price|floatformat:0 }}{% endif %}
+          </div>
+          <div class="price-class">{{ flight.available_seats }} seats left</div>
+        </div>
+        <div class="price-actions">
+          <a href="{% url 'book_flight' flight.id %}?seat_class={{ seat_class }}&passengers={{ passengers }}" class="btn btn-amber btn-sm">Select →</a>
+          <a href="{% url 'flight_detail' flight.id %}?seat_class={{ seat_class }}&passengers={{ passengers }}" class="btn btn-outline btn-sm">Details</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">✈</div>
+    <div class="empty-title">No flights available</div>
+    <div class="empty-desc">No flights found from {{ origin }} to {{ destination }} on {{ dep_date|date:"d M Y" }}.</div>
+    <a href="{% url 'home' %}" class="btn btn-primary mt-2" style="margin-top:1.5rem;">Search Again</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

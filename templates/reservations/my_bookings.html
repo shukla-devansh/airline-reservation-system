@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}My Bookings — SkyWave{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb">
+      <a href="{% url 'home' %}">Home</a>
+      <span class="sep">›</span>
+      <span class="current">My Bookings</span>
+    </div>
+    <h1>My Bookings</h1>
+    <p>Welcome, {{ user.first_name|default:user.username }}. Manage your reservations below.</p>
+  </div>
+</div>
+
+<div class="main-content">
+
+  {% if bookings %}
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">🎫</div>
+      <div class="stat-value">{{ bookings|length }}</div>
+      <div class="stat-label">Total Bookings</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value">{% with confirmed=bookings|length %}{{ confirmed }}{% endwith %}</div>
+      <div class="stat-label">Confirmed</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✈</div>
+      <div class="stat-value">
+        {% with total=0 %}
+          {{ bookings.count }}
+        {% endwith %}
+      </div>
+      <div class="stat-label">Trips Taken</div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2 class="section-title">All Reservations</h2>
+    <a href="{% url 'home' %}" class="btn btn-primary btn-sm">+ New Booking</a>
+  </div>
+
+  {% for booking in bookings %}
+  <div class="booking-item {% if booking.status == 'cancelled' %}cancelled{% endif %}">
+    <div class="booking-ref-badge">{{ booking.booking_ref }}</div>
+
+    <div>
+      <div class="booking-route">
+        {{ booking.flight.origin.code }} → {{ booking.flight.destination.code }}
+      </div>
+      <div class="booking-meta">
+        {{ booking.flight.origin.city }} to {{ booking.flight.destination.city }}
+        &nbsp;·&nbsp; {{ booking.flight.departure_time|date:"D, d M Y" }}
+        &nbsp;·&nbsp; {{ booking.flight.departure_time|time:"H:i" }} – {{ booking.flight.arrival_time|time:"H:i" }}
+        &nbsp;·&nbsp; {{ booking.flight.flight_number }}
+      </div>
+      <div style="margin-top:6px;display:flex;gap:8px;align-items:center;">
+        {% if booking.status == 'confirmed' %}
+          <span class="badge badge-success">Confirmed</span>
+        {% elif booking.status == 'cancelled' %}
+          <span class="badge badge-danger">Cancelled</span>
+        {% else %}
+          <span class="badge badge-warning">{{ booking.status|title }}</span>
+        {% endif %}
+        <span style="font-size:0.8rem;color:var(--gray-400);">{{ booking.seat_class|title }} · {{ booking.passengers }} pax</span>
+      </div>
+    </div>
+
+    <div class="booking-price">
+      <div class="amount">₹{{ booking.total_price|floatformat:0 }}</div>
+      <div class="pax">Booked {{ booking.booked_at|date:"d M Y" }}</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end;">
+      <a href="{% url 'booking_confirmation' booking.booking_ref %}" class="btn btn-outline btn-sm">View Details</a>
+      {% if booking.status == 'confirmed' %}
+      <a href="{% url 'cancel_booking' booking.booking_ref %}"
+         class="btn btn-danger btn-sm"
+         onclick="return confirm('Cancel booking {{ booking.booking_ref }}?')">Cancel</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🛫</div>
+    <div class="empty-title">No bookings yet</div>
+    <div class="empty-desc">You haven't made any reservations. Start planning your next trip!</div>
+    <a href="{% url 'home' %}" class="btn btn-primary" style="margin-top:1.5rem;">Search Flights</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
