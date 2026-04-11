@@ -106,7 +106,7 @@ The application utilizes a custom, modern design system without relying on heavy
 - **Typography:** Syne (Headings) and DM Sans (Body) via Google Fonts
 - **Aesthetic:** Flat, clean, professional interface with full cross-device responsiveness.
 
-## 🔧 Models
+##  Models
 
 - **Airport** — IATA code, name, city, country
 - **Flight** — Route, times, seats, 3-tier pricing, status
@@ -115,7 +115,7 @@ The application utilizes a custom, modern design system without relying on heavy
 
 ---
 
-## 📝 Sample Routes Available
+##  Sample Routes Available
 
 | Route | Code |
 |-------|------|
