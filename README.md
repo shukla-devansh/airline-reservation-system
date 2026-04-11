@@ -1,103 +1,110 @@
-# ✈ SkyWave Airlines — Django Reservation System
+# SkyWave Airlines Reservation System
 
-A full-featured airline reservation system built with Django.
+![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![Django](https://img.shields.io/badge/Django-settings-092E20.svg?logo=django)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
 
----
+A robust, full-featured airline reservation and management system built with the Django web framework. SkyWave Airlines provides a seamless booking experience for passengers and a comprehensive administration interface for airline staff.
 
-## 🚀 Quick Start
+## Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Installation & Setup](#installation--setup)
+- [Demo Credentials](#demo-credentials)
+- [Project Structure](#project-structure)
+- [Design System](#design-system)
 
-### 1. Install dependencies
-```bash
-pip install django
-```
+## Features
 
-### 2. Run migrations
-```bash
-python manage.py migrate
-```
+- **Advanced Flight Search**: Query flights by origin, destination, departure date, travel class, and number of passengers.
+- **Multi-Tier Pricing**: Support for Economy, Business, and First Class fare structures.
+- **Secure User Authentication**: Complete registration, login, and secure session management.
+- **Booking Management**: Users can view their itineraries, track booking statuses, and cancel reservations.
+- **Automated PNR Generation**: Unique 8-character alphanumeric booking reference assigned per reservation.
+- **Comprehensive Admin Dashboard**: Django-powered administration panel for managing airports, routes, and bookings.
+- **Pre-configured Dataset**: Includes 15 major airports (domestic and international) and 210 sample scheduled flights.
 
-### 3. Seed sample data (airports, flights, users)
-```bash
-python manage.py seed_data
-```
+## Tech Stack
 
-### 4. Start the server
-```bash
-python manage.py runserver
-```
+- **Backend:** Python, Django
+- **Database:** SQLite (Default, configurable to PostgreSQL/MySQL)
+- **Frontend:** HTML5, CSS3, Django Templates
+- **Styling:** Custom CSS with responsive design principles
 
-### 5. Open in browser
-```
-http://127.0.0.1:8000/
-```
+## Installation & Setup
 
----
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/shukla-devansh/airline-reservation-system.git
+   cd airline-reservation-system
+   ```
 
-## 👤 Demo Accounts
+2. **Create a virtual environment (Recommended)**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use: venv\Scripts\activate
+   ```
 
-| Role  | Username | Password   |
-|-------|----------|------------|
-| User  | demo     | demo1234   |
-| Admin | admin    | admin1234  |
+3. **Install dependencies**
+   ```bash
+   pip install django
+   ```
 
-Admin panel: `http://127.0.0.1:8000/admin/`
+4. **Apply database migrations**
+   ```bash
+   python manage.py migrate
+   ```
 
----
+5. **Seed the database with sample data**
+   *(Populates airports, flights, and default users)*
+   ```bash
+   python manage.py seed_data
+   ```
 
-## ✨ Features
+6. **Run the development server**
+   ```bash
+   python manage.py runserver
+   ```
 
-- **Flight Search** — Search by origin, destination, date, class, and passengers
-- **Multi-class Booking** — Economy, Business, First Class fares
-- **Passenger Details** — Full passenger form with DOB and passport
-- **Booking Management** — View and cancel reservations
-- **Booking Reference** — Unique 8-character alphanumeric reference per booking
-- **User Auth** — Register, Login, Logout
-- **15 Airports** — Indian domestic + international routes
-- **210 Sample Flights** — 2 weeks of scheduled flights
-- **Django Admin** — Full model administration
+7. **Access the application**
+   Open your web browser and navigate to `http://127.0.0.1:8000/`
 
----
+## Demo Credentials
 
-## 📁 Project Structure
+To test the application without registering a new account, you can use the following pre-configured user roles:
 
-```
+| Role | Username | Password | Access Level |
+| :--- | :--- | :--- | :--- |
+| **Customer** | `demo` | `demo1234` | Standard booking and user dashboard access |
+| **Administrator** | `admin` | `admin1234` | Full access including Django Admin panel (`/admin/`) |
+
+## Project Structure
+
+```text
 airline_system/
-├── airline/                  # Django project config
+├── airline/                  # Core Django project configuration
 │   ├── settings.py
 │   └── urls.py
-├── reservations/             # Main app
-│   ├── models.py             # Airport, Flight, Booking, Passenger
-│   ├── views.py              # All views
-│   ├── urls.py               # URL routing
-│   ├── forms.py              # Search, Booking, Auth forms
-│   ├── static/css/style.css  # Full CSS design system
+├── reservations/             # Main application module
+│   ├── models.py             # Database schemas (Airport, Flight, Booking)
+│   ├── views.py              # Application logic and controllers
+│   ├── urls.py               # Route definitions
+│   ├── forms.py              # Form handling and validation
+│   ├── static/css/style.css  # Application stylesheet
 │   └── management/commands/
-│       └── seed_data.py      # Sample data seeder
-├── templates/
-│   ├── base.html             # Base layout with navbar
-│   └── reservations/
-│       ├── home.html         # Landing + search
-│       ├── search_results.html
-│       ├── flight_detail.html
-│       ├── book_flight.html
-│       ├── booking_confirmation.html
-│       ├── my_bookings.html
-│       ├── login.html
-│       └── register.html
-├── manage.py
-└── db.sqlite3                # SQLite database (auto-created)
+│       └── seed_data.py      # Custom CLI command for data population
+├── templates/                # HTML Templates
+│   ├── base.html             # Master layout component
+│   └── reservations/         # App-specific templates via Django DTL
+└── manage.py                 # Django command-line utility
 ```
 
----
+## Design System
 
-## 🎨 Design System
-
-- **Colors:** Deep Navy `#0C1B33`, Sky Blue `#1E90C8`, Amber `#E8A020`
-- **Fonts:** Syne (headings) + DM Sans (body) via Google Fonts
-- **No gradients** — flat, clean, professional aesthetic
-- **Fully responsive** — works on mobile and desktop
-
----
+The application utilizes a custom, modern design system without relying on heavy frontend frameworks:
+- **Color Palette:** Deep Navy (`#0C1B33`), Sky Blue (`#1E90C8`), Amber (`#E8A020`)
+- **Typography:** Syne (Headings) and DM Sans (Body) via Google Fonts
+- **Aesthetic:** Flat, clean, professional interface with full cross-device responsiveness.
 
 ## 🔧 Models
 
@@ -117,4 +124,4 @@ airline_system/
 | Delhi → Dubai | SW701 |
 | Mumbai → Singapore | SW801 |
 | Delhi → London | SW901 |
-| + 10 more domestic/international routes | |
+| ~210 total domestic/international routes | |
