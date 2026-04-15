@@ -3,9 +3,22 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from django.contrib.auth.models import User
 from datetime import datetime, date
+from functools import wraps
 from .models import Flight, Airport, Booking, Passenger
 from .forms import FlightSearchForm, BookingForm, PassengerFormSet, RegisterForm, LoginForm
+
+
+def superuser_required(view_func):
+    @login_required
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.error(request, 'Only admin superusers can access this page.')
+            return redirect('home')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 
 def home(request):
@@ -132,13 +145,15 @@ def register_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('admin_dashboard' if request.user.is_superuser else 'home')
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
             messages.success(request, f'Welcome back, {user.first_name or user.username}!')
+            if user.is_superuser:
+                return redirect('admin_dashboard')
             return redirect(request.GET.get('next', 'home'))
     else:
         form = LoginForm()
@@ -148,6 +163,28 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
+
+
+@superuser_required
+def admin_dashboard(request):
+    total_users = User.objects.count()
+    total_airports = Airport.objects.count()
+    total_flights = Flight.objects.count()
+    total_bookings = Booking.objects.count()
+
+    recent_users = User.objects.order_by('-date_joined')[:6]
+    recent_flights = Flight.objects.select_related('origin', 'destination').order_by('-departure_time')[:6]
+    recent_bookings = Booking.objects.select_related('user', 'flight__origin', 'flight__destination').order_by('-booked_at')[:8]
+
+    return render(request, 'reservations/admin_dashboard.html', {
+        'total_users': total_users,
+        'total_airports': total_airports,
+        'total_flights': total_flights,
+        'total_bookings': total_bookings,
+        'recent_users': recent_users,
+        'recent_flights': recent_flights,
+        'recent_bookings': recent_bookings,
+    })
 
 
 

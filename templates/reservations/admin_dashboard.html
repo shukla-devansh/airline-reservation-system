@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard | SkyWave Airlines{% endblock %}
+
+{% block content %}
+<section class="page-header">
+  <div class="page-header-inner">
+    <div class="breadcrumb">
+      <a href="{% url 'home' %}">Home</a>
+      <span class="sep">/</span>
+      <span class="current">Admin Dashboard</span>
+    </div>
+    <h1>Superuser Control Center</h1>
+    <p>Manage all platform data from one place. Access is restricted to superusers.</p>
+  </div>
+</section>
+
+<main class="main-content">
+  <section class="stats-row">
+    <article class="stat-card">
+      <div class="stat-icon">Users</div>
+      <div class="stat-value">{{ total_users }}</div>
+      <div class="stat-label">Registered Accounts</div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-icon">Airports</div>
+      <div class="stat-value">{{ total_airports }}</div>
+      <div class="stat-label">Configured Airports</div>
+    </article>
+    <article class="stat-card">
+      <div class="stat-icon">Flights</div>
+      <div class="stat-value">{{ total_flights }}</div>
+      <div class="stat-label">Available Flight Records</div>
+    </article>
+  </section>
+
+  <section class="stats-row" style="grid-template-columns: 1fr;">
+    <article class="stat-card">
+      <div class="stat-icon">Bookings</div>
+      <div class="stat-value">{{ total_bookings }}</div>
+      <div class="stat-label">Total Customer Bookings</div>
+    </article>
+  </section>
+
+  <section class="card mb-2">
+    <div class="card-header">
+      <div class="card-header-icon">⚙</div>
+      <h2 class="card-title">Manage Everything</h2>
+    </div>
+    <div class="card-body">
+      <p class="mb-2">Use these quick actions to manage users, airports, flights, bookings, and passengers.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:0.8rem;">
+        <a href="{% url 'admin:auth_user_changelist' %}" class="btn btn-navy">Manage Users</a>
+        <a href="{% url 'admin:reservations_airport_changelist' %}" class="btn btn-navy">Manage Airports</a>
+        <a href="{% url 'admin:reservations_flight_changelist' %}" class="btn btn-navy">Manage Flights</a>
+        <a href="{% url 'admin:reservations_booking_changelist' %}" class="btn btn-navy">Manage Bookings</a>
+        <a href="{% url 'admin:reservations_passenger_changelist' %}" class="btn btn-navy">Manage Passengers</a>
+        <a href="{% url 'admin:index' %}" class="btn btn-outline">Open Django Admin Home</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="card mb-2">
+    <div class="card-header">
+      <div class="card-header-icon">👤</div>
+      <h2 class="card-title">Recently Joined Users</h2>
+    </div>
+    <div class="card-body">
+      {% if recent_users %}
+        <div class="flight-list">
+          {% for item in recent_users %}
+            <div class="booking-item" style="grid-template-columns: 1fr auto auto;">
+              <div>
+                <div class="booking-route">{{ item.username }}</div>
+                <div class="booking-meta">{{ item.email|default:'No email' }}</div>
+              </div>
+              <span class="badge {% if item.is_superuser %}badge-danger{% else %}badge-info{% endif %}">
+                {% if item.is_superuser %}Superuser{% else %}Customer{% endif %}
+              </span>
+              <div class="booking-meta">Joined {{ item.date_joined|date:'d M Y, H:i' }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-title">No users available</div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="card mb-2">
+    <div class="card-header">
+      <div class="card-header-icon">✈</div>
+      <h2 class="card-title">Recent Flights</h2>
+    </div>
+    <div class="card-body">
+      {% if recent_flights %}
+        <div class="flight-list">
+          {% for item in recent_flights %}
+            <div class="booking-item" style="grid-template-columns: 1fr auto auto;">
+              <div>
+                <div class="booking-route">{{ item.flight_number }}: {{ item.origin.code }} → {{ item.destination.code }}</div>
+                <div class="booking-meta">{{ item.airline_name }} | {{ item.departure_time|date:'d M Y, H:i' }}</div>
+              </div>
+              <span class="badge {% if item.status == 'scheduled' %}badge-success{% elif item.status == 'delayed' %}badge-warning{% elif item.status == 'cancelled' %}badge-danger{% else %}badge-info{% endif %}">
+                {{ item.get_status_display }}
+              </span>
+              <a href="{% url 'admin:reservations_flight_change' item.id %}" class="btn btn-outline btn-sm">Edit</a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-title">No flights available</div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header">
+      <div class="card-header-icon">🧾</div>
+      <h2 class="card-title">Recent Bookings</h2>
+    </div>
+    <div class="card-body">
+      {% if recent_bookings %}
+        <div class="flight-list">
+          {% for item in recent_bookings %}
+            <div class="booking-item" style="grid-template-columns: auto 1fr auto auto;">
+              <div class="booking-ref-badge">{{ item.booking_ref }}</div>
+              <div>
+                <div class="booking-route">{{ item.flight.origin.code }} → {{ item.flight.destination.code }}</div>
+                <div class="booking-meta">{{ item.user.username }} | {{ item.booked_at|date:'d M Y, H:i' }}</div>
+              </div>
+              <span class="badge {% if item.status == 'confirmed' %}badge-success{% elif item.status == 'pending' %}badge-warning{% else %}badge-danger{% endif %}">
+                {{ item.get_status_display }}
+              </span>
+              <a href="{% url 'admin:reservations_booking_change' item.id %}" class="btn btn-outline btn-sm">Edit</a>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-title">No bookings yet</div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</main>
+{% endblock %}
